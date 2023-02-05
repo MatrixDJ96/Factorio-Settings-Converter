@@ -4,7 +4,7 @@ namespace ModSettingsConverter
     class MapVersion
     {
         public static readonly MapVersion Minimum = new MapVersion(1, 1, 0, 0);
-        public static readonly MapVersion Latest = new MapVersion(1, 1, 35, 1);
+        public static readonly MapVersion Latest = new MapVersion(1, 1, 76, 0);
 
         private readonly ulong version;
 
@@ -13,10 +13,7 @@ namespace ModSettingsConverter
         private ushort GetMinorVersion() { return (ushort)(version >> 16); }
         private ushort GetDeveloperVersion() { return (ushort)(version); }
 
-        public MapVersion(ushort mainVersion,
-                          ushort majorVersion,
-                          ushort minorVersion,
-                          ushort developerVersion)
+        public MapVersion(ushort mainVersion, ushort majorVersion, ushort minorVersion, ushort developerVersion)
         {
             version = (ulong)developerVersion | ((ulong)minorVersion << 16) | ((ulong)majorVersion << 32) | ((ulong)mainVersion << 48);
         }
