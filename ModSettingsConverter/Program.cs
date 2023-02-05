@@ -1,59 +1,77 @@
 using System;
 using System.IO;
-using System.Windows.Forms;
 
 namespace ModSettingsConverter
 {
-    static class Program
+    class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            string path;
 
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            Console.WriteLine("Type mod-settings (dat/json) path: ");
+
+            if (args.Length == 0)
             {
-                openFileDialog.Filter = "dat files (*.dat)|*.dat|json files (*.json)|*.json";
+                var defaultPath = Path.Combine(
+                    Environment.OSVersion.Platform == PlatformID.Win32NT ?
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Factorio") :
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".factorio"),
+                    "mods", "mod-settings.dat"
+                );
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                Console.WriteLine("Default path: " + defaultPath);
+
+                path = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(path))
                 {
-                    var dir = Path.GetDirectoryName(openFileDialog.FileName);
-                    var extension = Path.GetExtension(openFileDialog.FileName).ToLower();
-                    var filename = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-
-                    var data = Array.Empty<byte>();
-                    var json = string.Empty;
-
-                    try
-                    {
-                        switch (extension)
-                        {
-                            case ".json":
-                                json = File.ReadAllText(openFileDialog.FileName);
-                                data = JsonUtil.JsonStringToData(json);
-                                File.WriteAllBytes(Path.Combine(dir, filename + ".dat"), data);
-                                break;
-                            case ".dat":
-                                data = File.ReadAllBytes(openFileDialog.FileName);
-                                json = JsonUtil.DataToJsonString(data);
-                                File.WriteAllText(Path.Combine(dir, filename + ".json"), json);
-                                break;
-                            default:
-                                throw new Exception("Unable to convert selected file...");
-                        }
-
-                        MessageBox.Show("Successfully converted!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    }
+                    path = defaultPath;
                 }
+            }
+            else
+            {
+                // Set path from args
+                path = args[0];
+            }
+
+
+            try
+            {
+                if (!File.Exists(path))
+                {
+                    // If file is missing throw exception
+                    throw new FileNotFoundException(path);
+                }
+
+                var dir = Path.GetDirectoryName(path);
+                var extension = Path.GetExtension(path).ToLower();
+                var filename = Path.GetFileNameWithoutExtension(path);
+
+                var data = Array.Empty<byte>();
+                var json = string.Empty;
+
+                switch (extension)
+                {
+                    case ".json":
+                        json = File.ReadAllText(path);
+                        data = JsonUtil.JsonStringToData(json);
+                        File.WriteAllBytes(Path.Combine(dir, filename + ".dat"), data);
+                        break;
+                    case ".dat":
+                        data = File.ReadAllBytes(path);
+                        json = JsonUtil.DataToJsonString(data);
+                        File.WriteAllText(Path.Combine(dir, filename + ".json"), json);
+                        break;
+                    default:
+                        throw new Exception("Unable to convert selected file...");
+                }
+
+                Console.WriteLine("Successfully converted!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
     }
