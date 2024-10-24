@@ -9,10 +9,10 @@ namespace ModSettingsConverter
         {
             string path;
 
-            Console.WriteLine("Type mod-settings (dat/json) path: ");
-
             if (args.Length == 0)
             {
+                Console.WriteLine("Type mod-settings (dat/json) path: ");
+
                 var defaultPath = Path.Combine(
                     Environment.OSVersion.Platform == PlatformID.Win32NT ?
                         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Factorio") :
@@ -34,7 +34,6 @@ namespace ModSettingsConverter
                 // Set path from args
                 path = args[0];
             }
-
 
             try
             {

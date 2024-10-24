@@ -49,8 +49,10 @@ namespace ModSettingsConverter
 
                     for (uint i = 0; i < count; ++i)
                     {
+                        var key = input.LoadString();
+
                         // Key
-                        jsonWriter.WritePropertyName(input.LoadString());
+                        jsonWriter.WritePropertyName(key);
 
                         // Value
                         ReadPropertyTree(input, jsonWriter);
